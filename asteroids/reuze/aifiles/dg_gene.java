@@ -1,25 +1,33 @@
 package reuze.aifiles;
 
-import reuze.aifiles.Gene.AnonymousEnum;
+import java.util.Random;
+
 
 public class dg_gene {
-	
+	//data
+			public static byte m_thrust;
+			public static byte m_sector;
 		//methods    
-		public Gene()
+		public dg_gene()
 		{
 			m_thrust = randint(0,2);
-			m_sector = randint(0,Defines.NUM_SECTORS - 1);
+			m_sector = randint(0,dg_Genome.NUM_SECTORS - 1);
 		}
-		public Gene(int a, int d)
+		private byte randint(int i, int j) {
+			Random generator = new Random(); 
+			 i = generator.nextInt(j);
+			return (byte) i;
+		}
+		public dg_gene(int a, int d)
 		{
-			this.m_thrust = a;
-			this.m_sector = d;
+			this.m_thrust = 'a';
+			this.m_sector = 'd';
 		}
-		public static boolean OpEquality(Gene ImpliedObject, Gene rhs)
+		public static boolean OpEquality(dg_gene ImpliedObject, dg_gene rhs)
 		{
 			return (m_thrust == rhs.m_thrust) && (m_sector == rhs.m_sector);
 		}
-		public static boolean operator !=  (Gene ImpliedObject, Gene rhs)
+		public static boolean operator(dg_gene ImpliedObject, dg_gene rhs)
 		{
 			return (m_thrust != rhs.m_thrust) || (m_sector != rhs.m_sector);
 		}
@@ -41,9 +49,7 @@ public class dg_gene {
 			}
 		}
 
-		//data
-		public byte m_thrust;
-		public byte m_sector;
+		
 	}
 
-}
+

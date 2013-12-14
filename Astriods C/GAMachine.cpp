@@ -612,7 +612,10 @@ void GAMachine::Reset()
     for (int shpNum=0; shpNum<POPULATION_SIZE; ++shpNum)
     {
         //reset test ships to startup state
-        Ship* ship = (Ship*)Game.m_ships[shpNum];
+        Ship* ship = (Ship*)Game.
+			
+			
+			[shpNum];
         ship->m_active = true;
         ship->m_velocity.x() = 0;
         ship->m_velocity.y() = 0;

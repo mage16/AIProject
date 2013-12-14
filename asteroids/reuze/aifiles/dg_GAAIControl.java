@@ -1,5 +1,10 @@
 package reuze.aifiles;
 
+import java.util.Random;
+
+import com.software.reuze.gb_Vector3;
+import com.software.reuze.m_MathUtils;
+
 
 
 public class dg_GAAIControl extends dg_ControlAI
@@ -15,7 +20,7 @@ public class dg_GAAIControl extends dg_ControlAI
 
 	public dg_GAAIControl(dg_Ship ship)
 	{
-		this.dg_ControlAI = ship;
+		this.m_ship = ship;
 		m_GAMachine = new dg_GAMachine(this);
 		Init();
 		m_GAMachine.CreateStartPopulation();
@@ -36,7 +41,7 @@ public class dg_GAAIControl extends dg_ControlAI
 	}
 	public final void UpdatePerceptions(float dt, int index)
 	{
-		Ship ship = (Ship)Game.m_ships[index];
+		dg_Ship ship = (dg_Ship) z_app.game.m_mainShip;
 		if (ship == null)
 		{
 			return;
@@ -48,28 +53,30 @@ public class dg_GAAIControl extends dg_ControlAI
 		int distanceState = -1;
 
 		//store closest asteroid
-		m_nearestAsteroid = Game.GetClosestGameObj(ship,GameObj.OBJ_ASTEROID);
+		m_nearestAsteroid =  z_app.game.GetClosestGameObj(ship,dg_GameObject.OBJ_ASTEROID);
 
 		//reset distance to a large bogus number
 		m_nearestAsteroidDist = 100000.0f;
 
-		if (m_nearestAsteroid)
+		if (m_nearestAsteroid != null)
 		{
-			Point3f normDelta = m_nearestAsteroid.m_position - ship.m_position;
-			normDelta.Normalize();
+			gb_Vector3 normDelta = m_nearestAsteroid.m_position.tmp().sub(m_ship.m_position);
+			normDelta.nor();
 
 			//asteroid collision determination
-			float speed = ship.m_velocity.Length();
-			m_nearestAsteroidDist = m_nearestAsteroid.m_position.Distance(ship.m_position);
-			float astSpeed = m_nearestAsteroid.m_velocity.Length();
-			float shpSpeedAdj = DOT(ship.UnitVectorVelocity(),normDelta) * speed;
-			float astSpeedAdj = DOT(m_nearestAsteroid.UnitVectorVelocity(),-normDelta) * astSpeed;
+			 float speed = m_ship.m_velocity.len();
+			 m_nearestAsteroidDist = m_nearestAsteroid.m_position.dst(m_ship.m_position);
+			 float astSpeed = m_nearestAsteroid.m_velocity.len();
+			 float shpSpeedAdj = m_ship.UnitVectorVelocity().dot(normDelta)*speed;
+		        normDelta.inv();
+		        float astSpeedAdj = m_nearestAsteroid.UnitVectorVelocity().dot(normDelta)*astSpeed;
+		        speed = shpSpeedAdj+astSpeedAdj;
 			speed = shpSpeedAdj + astSpeedAdj;
 			speed = MIN(speed,m_maxSpeed);
 			collisionState = (int)LERP(speed / m_maxSpeed,0.0f,9.0f);
 
 			//direction determination
-			directionState = GETSECTOR(normDelta);
+			directionState =(int) m_MathUtils.directionXangle(normDelta);
 
 			//distance determination
 			distanceState = MIN((int)(m_nearestAsteroidDist / m_nearestAsteroid.m_size),4);
@@ -82,6 +89,23 @@ public class dg_GAAIControl extends dg_ControlAI
 		{
 			m_currentEvasionSituation = (collisionState * 10) + (directionState * 18) + distanceState;
 		}
+	}
+	private int LERP(float f, float g, float h) {
+		return (int) (f + h * (g - f));
+	}
+	private float MIN(float speed, float m_maxSpeed2) {
+		float min = Math.min(speed, m_maxSpeed2);
+		return min;
+		
+	}
+	private int MIN(int i, int j) {
+		int min = Math.min(i, j);
+		return min;
+	}
+	private byte randint(int i, int j) {
+		Random generator = new Random(); 
+		 i = generator.nextInt(j);
+		return (byte) i;
 	}
 	public final void Reset()
 	{
